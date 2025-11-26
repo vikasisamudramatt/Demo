@@ -77,6 +77,7 @@ jobs:
 
             let reviewComments = [];
             let summaryComments = [];
+            let errorMessages = [];
 
             for (const file of changedFiles) {
               if (!file) continue;
@@ -109,20 +110,31 @@ jobs:
                 });
               } catch (error) {
                 console.log(`Could not read file ${file}: ${error.message}`);
+                errorMessages.push(`Could not analyze ${file}: ${error.message}`);
               }
             }
 
             // Post review summary as a comment
-            if (summaryComments.length > 0) {
+            if (summaryComments.length > 0 || errorMessages.length > 0) {
               let commentBody = '## 🤖 Automated Code Review\n\n';
-              commentBody += `Found ${summaryComments.length} item(s) to review:\n\n`;
 
-              summaryComments.forEach(({ file, line, message, severity, code }) => {
-                const icon = severity === 'warning' ? '⚠️' : 'ℹ️';
-                commentBody += `${icon} **${file}:${line}**\n`;
-                commentBody += `   ${message}\n`;
-                commentBody += `   \`\`\`\n   ${code}\n   \`\`\`\n\n`;
-              });
+              if (summaryComments.length > 0) {
+                commentBody += `Found ${summaryComments.length} item(s) to review:\n\n`;
+
+                summaryComments.forEach(({ file, line, message, severity, code }) => {
+                  const icon = severity === 'warning' ? '⚠️' : 'ℹ️';
+                  commentBody += `${icon} **${file}:${line}**\n`;
+                  commentBody += `   ${message}\n`;
+                  commentBody += `   \`\`\`\n   ${code}\n   \`\`\`\n\n`;
+                });
+              }
+
+              if (errorMessages.length > 0) {
+                commentBody += '\n### ⚠️ Analysis Errors\n\n';
+                errorMessages.forEach(msg => {
+                  commentBody += `- ${msg}\n`;
+                });
+              }
 
               commentBody += '\n---\n*This is an automated review. Please verify the suggestions before making changes.*';
 
@@ -133,7 +145,7 @@ jobs:
                 body: commentBody
               });
 
-              console.log(`Posted review with ${summaryComments.length} comments`);
+              console.log(`Posted review with ${summaryComments.length} comments and ${errorMessages.length} errors`);
             } else {
               // Post a positive comment if no issues found
               await github.rest.issues.createComment({
