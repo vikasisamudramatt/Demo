@@ -1,0 +1,26 @@
+{
+  "root": true,
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "extends": [
+        "plugin:@angular-eslint/recommended"
+      ],
+      "parserOptions": {
+        "project": ["tsconfig.json"],
+        "createDefaultProgram": true
+      },
+      "rules": {
+        "@angular-eslint/component-class-suffix": ["error", {"suffixes": ["Component"]}],
+        "@angular-eslint/directive-class-suffix": ["error", {"suffixes": ["Directive"]}],
+        "@angular-eslint/no-empty-lifecycle-method": "warn"
+      }
+    },
+    {
+      "files": ["*.html"],
+      "extends": ["plugin:@angular-eslint/template/recommended"],
+      "rules": {}
+    }
+  ]
+}
