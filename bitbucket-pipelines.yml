@@ -4,24 +4,35 @@ pipelines:
   pull-requests:
     '**':
       - step:
-          name: Lint, Build and Test
+          name: Lint, Build, Test and Annotate
           caches:
             - node
           script:
             - npm ci
-            - npm run lint -- --format stylish
+            - mkdir -p reports
+            - npx eslint . --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml || true
+            - pipe: atlassian/checkstyle-report:0.3.1
+              variables:
+                CHECKSTYLE_REPORT: 'reports/eslint-checkstyle.xml'
+                SHOW_ONLY_ERRORS: 'false'
             - npm run build -- --configuration=production
             - npm test -- --watch=false
           artifacts:
             - dist/**
+            - reports/**
   branches:
     main:
       - step:
-          name: Lint, Build and Test
+          name: Lint, Build, Test and Annotate
           caches:
             - node
           script:
             - npm ci
-            - npm run lint -- --format stylish
+            - mkdir -p reports
+            - npx eslint . --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml || true
+            - pipe: atlassian/checkstyle-report:0.3.1
+              variables:
+                CHECKSTYLE_REPORT: 'reports/eslint-checkstyle.xml'
+                SHOW_ONLY_ERRORS: 'false'
             - npm run build -- --configuration=production
             - npm test -- --watch=false

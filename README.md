@@ -47,7 +47,7 @@ If you mirror this repository to Bitbucket, automatic PR checks can run via Bitb
 
 - `bitbucket-pipelines.yml` runs on pull requests and on `main` branch pushes:
   - `npm ci`
-  - `npm run lint` (stylish formatter)
+  - ESLint generates Checkstyle XML and Bitbucket Pipe annotates PRs
   - `npm run build -- --configuration=production`
   - `npm test -- --watch=false`
 
@@ -57,4 +57,5 @@ Setup steps:
 - Open a Pull Request in Bitbucket; the pipeline will execute and surface results in the PR.
 
 Notes:
-- For inline annotations in Bitbucket, you can add formatters that produce reports that certain pipes understand (e.g., checkstyle for lint). If you want that, we can wire ESLint to output checkstyle and use a Pipe to publish annotations.
+ - Inline annotations: the pipeline uses `npx eslint --format checkstyle -o reports/eslint-checkstyle.xml` and the `atlassian/checkstyle-report` pipe to publish annotations to the PR.
+ - If you have custom ESLint config paths or want to limit scope, adjust the command accordingly (e.g., `npx eslint src --ext .ts`).
