@@ -1,0 +1,27 @@
+image: node:20
+
+pipelines:
+  pull-requests:
+    '**':
+      - step:
+          name: Lint, Build and Test
+          caches:
+            - node
+          script:
+            - npm ci
+            - npm run lint -- --format stylish
+            - npm run build -- --configuration=production
+            - npm test -- --watch=false
+          artifacts:
+            - dist/**
+  branches:
+    main:
+      - step:
+          name: Lint, Build and Test
+          caches:
+            - node
+          script:
+            - npm ci
+            - npm run lint -- --format stylish
+            - npm run build -- --configuration=production
+            - npm test -- --watch=false

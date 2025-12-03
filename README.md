@@ -41,3 +41,20 @@ npm run build
 
 ## CI
 - GitHub Actions workflow: install, lint, build, test.
+ 
+## Bitbucket PR Review (mirror)
+If you mirror this repository to Bitbucket, automatic PR checks can run via Bitbucket Pipelines.
+
+- `bitbucket-pipelines.yml` runs on pull requests and on `main` branch pushes:
+  - `npm ci`
+  - `npm run lint` (stylish formatter)
+  - `npm run build -- --configuration=production`
+  - `npm test -- --watch=false`
+
+Setup steps:
+- Ensure your mirrored Bitbucket repo has Pipelines enabled.
+- Push this file (`bitbucket-pipelines.yml`) to the mirror (or to GitHub and let the mirror sync).
+- Open a Pull Request in Bitbucket; the pipeline will execute and surface results in the PR.
+
+Notes:
+- For inline annotations in Bitbucket, you can add formatters that produce reports that certain pipes understand (e.g., checkstyle for lint). If you want that, we can wire ESLint to output checkstyle and use a Pipe to publish annotations.
