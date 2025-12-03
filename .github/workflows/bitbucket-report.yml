@@ -14,11 +14,10 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm install
-      - name: Generate ESLint Checkstyle and Summary
+      - name: Generate ESLint Checkstyle
         run: |
           mkdir -p reports
           npx eslint src --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml || true
-          node -e "const fs=require('fs');const p='reports/eslint-checkstyle.xml';if(fs.existsSync(p)){const x=fs.readFileSync(p,'utf8');const issues=[...x.matchAll(/<file name=\"([^\"]+)\">([\s\S]*?)<\/file>/g)].flatMap(m=>{const f=m[1];const body=m[2];return [...body.matchAll(/<error line=\"(\d+)\" severity=\"([^\"]+)\" message=\"([^\"]+)/g)].map(e=>({file:f,line:e[1],sev:e[2],msg:e[3]}));});let md='# ESLint Report\n\n';if(issues.length){md+=`Found ${issues.length} issue(s)\n\n`;issues.forEach(i=>md+=`- [${i.sev}] ${i.file}:${i.line} - ${i.msg}\n`);}else{md+='No issues found.\n';}fs.writeFileSync('reports/ESLINT_SUMMARY.md',md);}"
       - name: Post Bitbucket Code Insights (report + annotations)
         env:
           BB_BASE_URL: ${{ secrets.BB_BASE_URL }}
@@ -32,31 +31,3 @@ jobs:
         run: node scripts/post-bitbucket-insights.js
       - run: npm run build -- --configuration=production
       - run: npm test -- --watch=false
-      - name: Post summary to Bitbucket PR (Server/DC)
-        if: ${{ github.event.pull_request.head.repo.full_name }}
-        env:
-          BB_BASE_URL: ${{ secrets.BB_BASE_URL }}
-          BB_PROJECT_KEY: ${{ secrets.BB_PROJECT_KEY }}
-          BB_REPO_SLUG: ${{ secrets.BB_REPO_SLUG }}
-          BB_USERNAME: ${{ secrets.BB_USERNAME }}
-          BB_TOKEN: ${{ secrets.BB_TOKEN }}
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          if [ -f reports/ESLINT_SUMMARY.md ]; then \
-            BODY=$(sed 's/"/\\"/g' reports/ESLINT_SUMMARY.md | awk '{printf "%s\\n", $0}'); \
-            # Attempt to find corresponding Bitbucket PR by branch name
-            HEAD_BRANCH='${{ github.event.pull_request.head.ref }}'; \
-            # If you know PR ID mapping, set BB_PR_ID as a secret; else query PRs by source branch
-            BB_PR_ID=${BB_PR_ID:-}; \
-            if [ -z "$BB_PR_ID" ]; then \
-              echo "Attempting to resolve Bitbucket PR ID by source branch: $HEAD_BRANCH"; \
-              PR_JSON=$(curl -s -u "$BB_USERNAME:$BB_TOKEN" "$BB_BASE_URL/rest/api/1.0/projects/$BB_PROJECT_KEY/repos/$BB_REPO_SLUG/pull-requests?state=OPEN&at=refs/heads/$HEAD_BRANCH"); \
-              BB_PR_ID=$(echo "$PR_JSON" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const j=JSON.parse(s);console.log((j.values&&j.values[0]&&j.values[0].id)||'');}catch(e){console.log('');}})"); \
-            fi; \
-            if [ -z "$BB_PR_ID" ]; then echo "Could not resolve Bitbucket PR ID"; exit 0; fi; \
-            curl -s -u "$BB_USERNAME:$BB_TOKEN" -H "Content-Type: application/json" -X POST \
-              "$BB_BASE_URL/rest/api/1.0/projects/$BB_PROJECT_KEY/repos/$BB_REPO_SLUG/pull-requests/$BB_PR_ID/comments" \
-              -d "{\"text\":\"$BODY\"}"; \
-          else \
-            echo "ESLINT_SUMMARY.md not found; skipping comment"; \
-          fi
