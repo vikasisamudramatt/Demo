@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs/operators'; // intentionally unused to trigger ESLint
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface ReviewItem {
@@ -10,6 +11,8 @@ export interface ReviewItem {
 
 @Injectable({ providedIn: 'root' })
 export class ReviewService {
+  // Intentionally unused to trigger ESLint
+  private debugFlag = true;
   private data: ReviewItem[] = [
     { id: 1, title: 'Improve accessibility', description: 'Add ARIA labels to inputs', status: 'open' },
     { id: 2, title: 'Refactor service', description: 'Split large service into smaller ones', status: 'open' }
@@ -18,7 +21,11 @@ export class ReviewService {
   reviews$: Observable<ReviewItem[]> = this.subject.asObservable();
   private nextId = 3;
 
-  listSnapshot(): ReviewItem[] { return [...this.data]; }
+  listSnapshot(): ReviewItem[] { 
+    // Intentional console usage to trigger no-console rule
+    console.log('ReviewService.listSnapshot called');
+    return [...this.data]; 
+  }
   add(item: Omit<ReviewItem, 'id' | 'status'>): ReviewItem {
     const newItem: ReviewItem = { id: this.nextId++, status: 'open', ...item };
     this.data.push(newItem);
