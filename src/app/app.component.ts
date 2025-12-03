@@ -16,4 +16,11 @@ import { RouterModule } from '@angular/router';
     </div>
   `,
 })
-export class AppComponent {}
+export class AppComponent {
+  // Intentional lint issues for CI testing
+  private unusedFlag = true; // should trigger @typescript-eslint/no-unused-vars
+  constructor() {
+    // should trigger no-console
+    console.log('Intentional console for lint test');
+  }
+}
