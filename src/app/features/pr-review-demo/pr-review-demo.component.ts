@@ -1,5 +1,4 @@
 import { Component, OnDestroy } from '@angular/core';
-import { NgFor } from '@angular/common'; // intentionally unused to trigger ESLint
 import { ReviewService, ReviewItem } from './review.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -50,14 +49,12 @@ export class PrReviewDemoComponent implements OnDestroy {
   description = '';
   reviews: ReviewItem[] = [];
   private sub?: Subscription;
-  // Intentionally unused to demonstrate ESLint annotations in Bitbucket
-  private debugNote: string = 'Trigger ESLint checkstyle annotation';
-  private tempValue = 42; // unused variable
+  
 
   constructor(private svc: ReviewService) {
     this.sub = this.svc.reviews$.subscribe(list => (this.reviews = list));
-    // Intentional console usage to trigger no-console rule
-    console.log('Debug: component initialized');
+  // Replace console usage with a no-op or future logger to satisfy linting rules
+  // TODO: inject a LoggerService if runtime logging is desired
   }
 
   add() {
