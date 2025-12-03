@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="card" aria-labelledby="demo-heading">
-      <h2 id="demo-heading">PR Review Demo</h2>
+      <h2 id="demo-heading">PR Review Demo (Bitbucket PR checks)</h2>
       <form (ngSubmit)="add()" aria-labelledby="form-heading">
         <h3 id="form-heading" class="visually-hidden">Add review suggestion</h3>
         <div class="form-row">
@@ -49,6 +49,8 @@ export class PrReviewDemoComponent implements OnDestroy {
   description = '';
   reviews: ReviewItem[] = [];
   private sub?: Subscription;
+  // Intentionally unused to demonstrate ESLint annotations in Bitbucket
+  private debugNote: string = 'Trigger ESLint checkstyle annotation';
 
   constructor(private svc: ReviewService) {
     this.sub = this.svc.reviews$.subscribe(list => (this.reviews = list));
