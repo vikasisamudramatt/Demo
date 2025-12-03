@@ -10,7 +10,7 @@ pipelines:
           script:
             - npm ci
             - mkdir -p reports
-            - npx eslint . --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml || true
+            - npx eslint src --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml
             - pipe: atlassian/checkstyle-report:0.3.1
               variables:
                 CHECKSTYLE_REPORT: 'reports/eslint-checkstyle.xml'
@@ -29,7 +29,7 @@ pipelines:
           script:
             - npm ci
             - mkdir -p reports
-            - npx eslint . --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml || true
+            - npx eslint src --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml
             - pipe: atlassian/checkstyle-report:0.3.1
               variables:
                 CHECKSTYLE_REPORT: 'reports/eslint-checkstyle.xml'
