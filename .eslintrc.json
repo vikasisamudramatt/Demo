@@ -14,7 +14,17 @@
       "rules": {
         "@angular-eslint/component-class-suffix": ["error", {"suffixes": ["Component"]}],
         "@angular-eslint/directive-class-suffix": ["error", {"suffixes": ["Directive"]}],
-        "@angular-eslint/no-empty-lifecycle-method": "warn"
+        "@angular-eslint/no-empty-lifecycle-method": "warn",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "vars": "all",
+            "args": "after-used",
+            "ignoreRestSiblings": true,
+            "varsIgnorePattern": "^_",
+            "argsIgnorePattern": "^_"
+          }
+        ]
       }
     },
     {
