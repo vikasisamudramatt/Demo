@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test --watch=false",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
     "@angular/animations": "^17.3.0",
@@ -37,6 +37,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
     "eslint": "^8.57.0",
     "prettier": "^3.3.3",
     "typescript": "~5.4.5"

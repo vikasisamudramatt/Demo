@@ -1,0 +1,33 @@
+name: Bitbucket PR Review Bridge
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-build-test-and-post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm install
+      - name: Generate ESLint Checkstyle
+        run: |
+          mkdir -p reports
+          npx eslint src --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml || true
+      - name: Post Bitbucket Code Insights (report + annotations)
+        env:
+          BB_BASE_URL: ${{ secrets.BB_BASE_URL }}
+          BB_PROJECT_KEY: ${{ secrets.BB_PROJECT_KEY }}
+          BB_REPO_SLUG: ${{ secrets.BB_REPO_SLUG }}
+          BB_USERNAME: ${{ secrets.BB_USERNAME }}
+          BB_TOKEN: ${{ secrets.BB_TOKEN }}
+          COMMIT_SHA: ${{ github.sha }}
+          INSIGHTS_KEY: eslint
+          INSIGHTS_TITLE: ESLint
+        run: node scripts/post-bitbucket-insights.js
+      - run: npm run build -- --configuration=production
+      - run: npm test -- --watch=false
