@@ -15,6 +15,8 @@ pipelines:
               variables:
                 CHECKSTYLE_REPORT: 'reports/eslint-checkstyle.xml'
                 SHOW_ONLY_ERRORS: 'false'
+            # Fallback: generate a simple markdown summary from the checkstyle XML
+            - node -e "const fs=require('fs');const p='reports/eslint-checkstyle.xml';if(fs.existsSync(p)){const x=fs.readFileSync(p,'utf8');const issues=[...x.matchAll(/<file name=\"([^\"]+)\">([\s\S]*?)<\/file>/g)].flatMap(m=>{const f=m[1];const body=m[2];return [...body.matchAll(/<error line=\"(\d+)\" severity=\"([^\"]+)\" message=\"([^\"]+)/g)].map(e=>({file:f,line:e[1],sev:e[2],msg:e[3]}));});let md='# ESLint Report\n\n';if(issues.length){md+=`Found ${issues.length} issue(s)\n\n`;issues.forEach(i=>md+=`- [${i.sev}] ${i.file}:${i.line} - ${i.msg}\n`);}else{md+='No issues found.\n';}fs.writeFileSync('reports/ESLINT_SUMMARY.md',md);}"
             - npm run build -- --configuration=production
             - npm test -- --watch=false
           artifacts:
@@ -34,5 +36,7 @@ pipelines:
               variables:
                 CHECKSTYLE_REPORT: 'reports/eslint-checkstyle.xml'
                 SHOW_ONLY_ERRORS: 'false'
+            # Fallback: generate a simple markdown summary from the checkstyle XML
+            - node -e "const fs=require('fs');const p='reports/eslint-checkstyle.xml';if(fs.existsSync(p)){const x=fs.readFileSync(p,'utf8');const issues=[...x.matchAll(/<file name=\"([^\"]+)\">([\s\S]*?)<\/file>/g)].flatMap(m=>{const f=m[1];const body=m[2];return [...body.matchAll(/<error line=\"(\d+)\" severity=\"([^\"]+)\" message=\"([^\"]+)/g)].map(e=>({file:f,line:e[1],sev:e[2],msg:e[3]}));});let md='# ESLint Report\n\n';if(issues.length){md+=`Found ${issues.length} issue(s)\n\n`;issues.forEach(i=>md+=`- [${i.sev}] ${i.file}:${i.line} - ${i.msg}\n`);}else{md+='No issues found.\n';}fs.writeFileSync('reports/ESLINT_SUMMARY.md',md);}"
             - npm run build -- --configuration=production
             - npm test -- --watch=false
