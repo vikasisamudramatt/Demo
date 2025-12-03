@@ -59,3 +59,6 @@ Setup steps:
 Notes:
  - Inline annotations: the pipeline uses `npx eslint --format checkstyle -o reports/eslint-checkstyle.xml` and the `atlassian/checkstyle-report` pipe to publish annotations to the PR.
  - If you have custom ESLint config paths or want to limit scope, adjust the command accordingly (e.g., `npx eslint src --ext .ts`).
+ - PR comment fallback: to auto-post `ESLINT_SUMMARY.md` as a comment, add secure variables in Bitbucket Pipelines:
+   - `BITBUCKET_USERNAME`, `BITBUCKET_APP_PASSWORD` (App password with repo:read/write privileges)
+   - Ensure default variables like `BITBUCKET_PR_ID`, `BITBUCKET_WORKSPACE`, `BITBUCKET_REPO_SLUG` are available in PR pipelines.
