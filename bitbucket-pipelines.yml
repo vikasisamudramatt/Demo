@@ -1,0 +1,62 @@
+image: node:20
+
+pipelines:
+  pull-requests:
+    '**':
+      - step:
+          name: Lint, Build, Test and Annotate
+          caches:
+            - node
+          script:
+            - npm ci
+            - mkdir -p reports
+            - npx eslint src --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml
+            - pipe: atlassian/checkstyle-report:0.3.1
+              variables:
+                CHECKSTYLE_REPORT: 'reports/eslint-checkstyle.xml'
+                SHOW_ONLY_ERRORS: 'false'
+            # Fallback: generate a simple markdown summary from the checkstyle XML
+            - node -e "const fs=require('fs');const p='reports/eslint-checkstyle.xml';if(fs.existsSync(p)){const x=fs.readFileSync(p,'utf8');const issues=[...x.matchAll(/<file name=\"([^\"]+)\">([\s\S]*?)<\/file>/g)].flatMap(m=>{const f=m[1];const body=m[2];return [...body.matchAll(/<error line=\"(\d+)\" severity=\"([^\"]+)\" message=\"([^\"]+)/g)].map(e=>({file:f,line:e[1],sev:e[2],msg:e[3]}));});let md='# ESLint Report\n\n';if(issues.length){md+=`Found ${issues.length} issue(s)\n\n`;issues.forEach(i=>md+=`- [${i.sev}] ${i.file}:${i.line} - ${i.msg}\n`);}else{md+='No issues found.\n';}fs.writeFileSync('reports/ESLINT_SUMMARY.md',md);}"
+            # Post summary as PR comment if credentials are available
+            - |
+              if [ -f reports/ESLINT_SUMMARY.md ] && [ ! -z "$BITBUCKET_PR_ID" ] && [ ! -z "$BITBUCKET_WORKSPACE" ] && [ ! -z "$BITBUCKET_REPO_SLUG" ] && [ ! -z "$BITBUCKET_USERNAME" ] && [ ! -z "$BITBUCKET_APP_PASSWORD" ]; then \
+                BODY=$(sed 's/"/\\"/g' reports/ESLINT_SUMMARY.md | awk '{printf "%s\\n", $0}'); \
+                curl -s -u "$BITBUCKET_USERNAME:$BITBUCKET_APP_PASSWORD" -H "Content-Type: application/json" -X POST \
+                  "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_WORKSPACE}/${BITBUCKET_REPO_SLUG}/pullrequests/${BITBUCKET_PR_ID}/comments" \
+                  -d "{\"content\":{\"raw\":\"$BODY\"}}"; \
+              else \
+                echo "Skipping PR comment: missing ESLINT_SUMMARY.md or Bitbucket credentials/vars"; \
+              fi
+            - npm run build -- --configuration=production
+            - npm test -- --watch=false
+          artifacts:
+            - dist/**
+            - reports/**
+  branches:
+    main:
+      - step:
+          name: Lint, Build, Test and Annotate
+          caches:
+            - node
+          script:
+            - npm ci
+            - mkdir -p reports
+            - npx eslint src --ext .ts --format checkstyle -o reports/eslint-checkstyle.xml
+            - pipe: atlassian/checkstyle-report:0.3.1
+              variables:
+                CHECKSTYLE_REPORT: 'reports/eslint-checkstyle.xml'
+                SHOW_ONLY_ERRORS: 'false'
+            # Fallback: generate a simple markdown summary from the checkstyle XML
+            - node -e "const fs=require('fs');const p='reports/eslint-checkstyle.xml';if(fs.existsSync(p)){const x=fs.readFileSync(p,'utf8');const issues=[...x.matchAll(/<file name=\"([^\"]+)\">([\s\S]*?)<\/file>/g)].flatMap(m=>{const f=m[1];const body=m[2];return [...body.matchAll(/<error line=\"(\d+)\" severity=\"([^\"]+)\" message=\"([^\"]+)/g)].map(e=>({file:f,line:e[1],sev:e[2],msg:e[3]}));});let md='# ESLint Report\n\n';if(issues.length){md+=`Found ${issues.length} issue(s)\n\n`;issues.forEach(i=>md+=`- [${i.sev}] ${i.file}:${i.line} - ${i.msg}\n`);}else{md+='No issues found.\n';}fs.writeFileSync('reports/ESLINT_SUMMARY.md',md);}"
+            # Post summary as PR comment if credentials are available
+            - |
+              if [ -f reports/ESLINT_SUMMARY.md ] && [ ! -z "$BITBUCKET_PR_ID" ] && [ ! -z "$BITBUCKET_WORKSPACE" ] && [ ! -z "$BITBUCKET_REPO_SLUG" ] && [ ! -z "$BITBUCKET_USERNAME" ] && [ ! -z "$BITBUCKET_APP_PASSWORD" ]; then \
+                BODY=$(sed 's/"/\\"/g' reports/ESLINT_SUMMARY.md | awk '{printf "%s\\n", $0}'); \
+                curl -s -u "$BITBUCKET_USERNAME:$BITBUCKET_APP_PASSWORD" -H "Content-Type: application/json" -X POST \
+                  "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_WORKSPACE}/${BITBUCKET_REPO_SLUG}/pullrequests/${BITBUCKET_PR_ID}/comments" \
+                  -d "{\"content\":{\"raw\":\"$BODY\"}}"; \
+              else \
+                echo "Skipping PR comment: missing ESLINT_SUMMARY.md or Bitbucket credentials/vars"; \
+              fi
+            - npm run build -- --configuration=production
+            - npm test -- --watch=false

@@ -7,3 +7,7 @@ body { margin: 0; font-family: Arial, Helvetica, sans-serif; }
 .btn-primary { background-color: #1976d2; color: #fff; }
 .btn-secondary { background-color: #6c757d; color: #fff; }
 input, select { padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; }
+/* Accessibility helpers */
+.visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0 0 0 0) !important; white-space: nowrap !important; border: 0 !important; }
+.form-row { display: flex; flex-direction: column; margin-bottom: 0.75rem; }
+.review-list .card { margin-top: 0.75rem; }

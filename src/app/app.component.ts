@@ -10,10 +10,18 @@ import { RouterModule } from '@angular/router';
       <h1>Angular AI Agent PR Review Demo</h1>
       <nav>
         <a routerLink="/" routerLinkActive="active" aria-label="Home">Home</a> |
-        <a routerLink="/demo" routerLinkActive="active" aria-label="PR Review Demo">PR Review Demo</a>
+        <a routerLink="/demo" routerLinkActive="active" aria-label="PR Review Demo">PR Review Demo</a> |
+        <a routerLink="/forms" routerLinkActive="active" aria-label="Reactive Forms Demo">Forms Demo</a>
       </nav>
       <router-outlet></router-outlet>
     </div>
   `,
 })
-export class AppComponent {}
+export class AppComponent {
+  // Intentional lint issues for CI testing
+  private unusedFlag = true; // should trigger @typescript-eslint/no-unused-vars
+  constructor() {
+    // should trigger no-console
+    console.log('Intentional console for lint test');
+  }
+}
