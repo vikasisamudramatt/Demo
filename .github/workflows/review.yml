@@ -16,6 +16,10 @@ jobs:
       - run: npm ci
       - name: Lint
         run: npm run lint -- --format stylish
+      - name: Enforce Reactive Forms (no template-driven)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/check-no-template-driven.js
       - name: Build (production)
         run: npm run build -- --configuration=production
       - name: Run unit tests
