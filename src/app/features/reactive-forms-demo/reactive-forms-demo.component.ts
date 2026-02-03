@@ -70,9 +70,11 @@ function oneOf(options: string[]) {
     `
     .card { padding: 1rem; border: 1px solid #ddd; border-radius: 6px; }
     .form-row { margin-bottom: .75rem; display: grid; gap: .25rem; }
-    .errors { color: #b00020; font-size: .9rem; }
+    .errors { color: #b00020; font-size: .9rem; margin-top: .25rem; }
     label { font-weight: 600; }
     input, select { padding: .5rem; border: 1px solid #bbb; border-radius: 4px; }
+    input:focus, select:focus { outline: 2px solid #005fcc; outline-offset: 2px; }
+    input.ng-invalid.ng-touched, select.ng-invalid.ng-touched { border-color: #b00020; box-shadow: 0 0 0 2px rgba(176, 0, 32, 0.15); }
     .btn { margin-top: .5rem; }
     pre { background: #f7f7f9; padding: .5rem; border-radius: 4px; }
     `
