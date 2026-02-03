@@ -1,0 +1,51 @@
+<div class="card" aria-labelledby="forms-heading">
+  <h2 id="forms-heading">Reactive Forms Validation Demo</h2>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-row">
+      <label for="name">Name</label>
+      <input id="name" formControlName="name" required aria-required="true" />
+      <div class="errors" *ngIf="invalid('name')" aria-live="polite">
+        <span *ngIf="form.controls.name.errors?.['required']">Name is required.</span>
+        <span *ngIf="form.controls.name.errors?.['minlength']">Name must be at least 3 characters.</span>
+        <span *ngIf="form.controls.name.errors?.['pattern']">Only letters, spaces and hyphens allowed.</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="category">Category</label>
+      <select id="category" formControlName="category" required aria-required="true">
+        <option value="" disabled>Select a category</option>
+        <option value="accessibility">Accessibility</option>
+        <option value="performance">Performance</option>
+        <option value="security">Security</option>
+      </select>
+      <div class="errors" *ngIf="invalid('category')" aria-live="polite">
+        <span *ngIf="form.controls.category.errors?.['required']">Category is required.</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="fruit">Favorite Fruit (combobox)</label>
+      <input id="fruit" formControlName="fruit" list="fruitOptions" required aria-required="true" />
+      <datalist id="fruitOptions">
+        <option value="Apple"></option>
+        <option value="Banana"></option>
+        <option value="Cherry"></option>
+        <option value="Grape"></option>
+      </datalist>
+      <div class="errors" *ngIf="invalid('fruit')" aria-live="polite">
+        <span *ngIf="form.controls.fruit.errors?.['required']">Fruit is required.</span>
+        <span *ngIf="form.controls.fruit.errors?.['oneOf']">Choose one of the suggested fruits.</span>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid" [attr.aria-disabled]="form.invalid ? 'true' : 'false'">
+      Submit
+    </button>
+  </form>
+
+  <section class="preview" aria-live="polite" *ngIf="form.valid">
+    <h3>Form Value</h3>
+    <pre>{{ form.value | json }}</pre>
+  </section>
+</div>
